@@ -1630,6 +1630,161 @@ Palette :: struct {
 	ref_count: i32,
 }
 
+Pixel_Type :: enum u32 {
+	UNKNOWN,
+	INDEX1,
+	INDEX4,
+	INDEX8,
+	PACKED8,
+	PACKED16,
+	PACKED32,
+	ARRAYU8,
+	ARRAYU16,
+	ARRAYU32,
+	ARRAYF16,
+	ARRAYF32,
+}
+
+Bitmap_Order :: enum u32 {
+	NONE,
+	_4321,
+	_1234,
+}
+
+Packed_Order :: enum u32 {
+	NONE,
+	XRGB,
+	RGBX,
+	ARGB,
+	RGBA,
+	XBGR,
+	BGRX,
+	ABGR,
+	BGRA,
+}
+
+Array_Order :: enum {
+	NONE,
+	RGB,
+	RGBA,
+	ARGB,
+	BGR,
+	BGRA,
+	ABGR,
+}
+
+Packed_Layout :: enum u32 {
+	NONE,
+	_332,
+	_4444,
+	_1555,
+	_5551,
+	_565,
+	_8888,
+	_2101010,
+	_1010102,
+}
+
+pixel_format_enum_to_u32 :: proc(e: Pixel_Format_Enum) -> u32 {
+	_pack_fourcc :: inline proc (a, b, c, d: u8) -> u32 {
+		return (u32(a) << 0) | (u32(b) << 8) | (u32(c) << 16) | (u32(d) << 24);
+	}
+	_pack_pixelformat :: inline proc(auto_cast type, order, layout, bits, bytes: u32) -> u32 {
+		return ((1 << 28) | (u32(type) << 24) | (order << 20) | (layout << 16) | (bits << 8) | (bytes << 0));
+	}
+	switch e {
+	case .INDEX1LSB:    return _pack_pixelformat(Pixel_Type.INDEX1,   Bitmap_Order._4321, Packed_Layout.NONE,     1,  0);
+	case .INDEX1MSB:    return _pack_pixelformat(Pixel_Type.INDEX1,   Bitmap_Order._1234, Packed_Layout.NONE,     1,  0);
+	case .INDEX4LSB:    return _pack_pixelformat(Pixel_Type.INDEX4,   Bitmap_Order._4321, Packed_Layout.NONE,     4,  0);
+	case .INDEX4MSB:    return _pack_pixelformat(Pixel_Type.INDEX4,   Bitmap_Order._1234, Packed_Layout.NONE,     4,  0);
+	case .INDEX8:       return _pack_pixelformat(Pixel_Type.INDEX8,   Packed_Order.NONE,  Packed_Layout.NONE,     8,  1);
+	case .RGB332:       return _pack_pixelformat(Pixel_Type.PACKED8,  Packed_Order.XRGB,  Packed_Layout._332,     8,  1);
+	case .RGB444:       return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.XRGB,  Packed_Layout._4444,    12, 2);
+	case .BGR444:       return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.XBGR,  Packed_Layout._4444,    12, 2);
+	case .RGB555:       return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.XRGB,  Packed_Layout._1555,    15, 2);
+	case .BGR555:       return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.XBGR,  Packed_Layout._1555,    15, 2);
+	case .ARGB4444:     return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.ARGB,  Packed_Layout._4444,    16, 2);
+	case .RGBA4444:     return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.RGBA,  Packed_Layout._4444,    16, 2);
+	case .ABGR4444:     return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.ABGR,  Packed_Layout._4444,    16, 2);
+	case .BGRA4444:     return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.BGRA,  Packed_Layout._4444,    16, 2);
+	case .ARGB1555:     return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.ARGB,  Packed_Layout._1555,    16, 2);
+	case .RGBA5551:     return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.RGBA,  Packed_Layout._5551,    16, 2);
+	case .ABGR1555:     return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.ABGR,  Packed_Layout._1555,    16, 2);
+	case .BGRA5551:     return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.BGRA,  Packed_Layout._5551,    16, 2);
+	case .RGB565:       return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.XRGB,  Packed_Layout._565,     16, 2);
+	case .BGR565:       return _pack_pixelformat(Pixel_Type.PACKED16, Packed_Order.XBGR,  Packed_Layout._565,     16, 2);
+	case .RGB24:        return _pack_pixelformat(Pixel_Type.ARRAYU8,  Array_Order.RGB,    Packed_Layout.NONE,     24, 3);
+	case .BGR24:        return _pack_pixelformat(Pixel_Type.ARRAYU8,  Array_Order.BGR,    Packed_Layout.NONE,     24, 3);
+	case .RGB888:       return _pack_pixelformat(Pixel_Type.PACKED32, Packed_Order.XRGB,  Packed_Layout._8888,    24, 4);
+	case .RGBX8888:     return _pack_pixelformat(Pixel_Type.PACKED32, Packed_Order.RGBX,  Packed_Layout._8888,    24, 4);
+	case .BGR888:       return _pack_pixelformat(Pixel_Type.PACKED32, Packed_Order.XBGR,  Packed_Layout._8888,    24, 4);
+	case .BGRX8888:     return _pack_pixelformat(Pixel_Type.PACKED32, Packed_Order.BGRX,  Packed_Layout._8888,    24, 4);
+	case .ARGB8888:     return _pack_pixelformat(Pixel_Type.PACKED32, Packed_Order.ARGB,  Packed_Layout._8888,    32, 4);
+	case .RGBA8888:     return _pack_pixelformat(Pixel_Type.PACKED32, Packed_Order.RGBA,  Packed_Layout._8888,    32, 4);
+	case .ABGR8888:     return _pack_pixelformat(Pixel_Type.PACKED32, Packed_Order.ABGR,  Packed_Layout._8888,    32, 4);
+	case .BGRA8888:     return _pack_pixelformat(Pixel_Type.PACKED32, Packed_Order.BGRA,  Packed_Layout._8888,    32, 4);
+	case .ARGB2101010:  return _pack_pixelformat(Pixel_Type.PACKED32, Packed_Order.ARGB,  Packed_Layout._2101010, 32, 4);
+// NOTE(oskar): these duplicates cases above.
+//	case .YV12:         return _pack_fourcc('Y', 'V', '1', '2');
+//	case .IYUV:         return _pack_fourcc('I', 'Y', 'U', 'V');
+//	case .YUY2:         return _pack_fourcc('Y', 'U', 'Y', '2');
+	case .UYVY:         return _pack_fourcc('U', 'Y', 'V', 'Y');
+	case .YVYU:         return _pack_fourcc('Y', 'V', 'Y', 'U');
+	case .NV12:         return _pack_fourcc('N', 'V', '1', '2');
+	case .NV21:         return _pack_fourcc('N', 'V', '2', '1');
+	case .EXTERNAL_OES: return _pack_fourcc('O', 'E', 'S', ' ');
+	case .UNKNOWN:
+	}
+	return 0;
+}
+
+Pixel_Format_Enum :: enum {
+    UNKNOWN,
+    INDEX1LSB,
+    INDEX1MSB,
+    INDEX4LSB,
+    INDEX4MSB,
+    INDEX8,
+    RGB332,
+    RGB444,
+    BGR444,
+    RGB555,
+    BGR555,
+    ARGB4444,
+    RGBA4444,
+    ABGR4444,
+    BGRA4444,
+    ARGB1555,
+    RGBA5551,
+    ABGR1555,
+    BGRA5551,
+    RGB565,
+    BGR565,
+    RGB24,
+    BGR24,
+    RGB888,
+    RGBX8888,
+    BGR888,
+    BGRX8888,
+    ARGB8888,
+    RGBA8888,
+    ABGR8888,
+    BGRA8888,
+    ARGB2101010,
+    RGBA32 = ABGR8888,
+    ARGB32 = BGRA8888,
+    BGRA32 = ARGB8888,
+    ABGR32 = RGBA8888,
+    YV12,
+    IYUV,
+    YUY2,
+    UYVY,
+    YVYU,
+    NV12,
+    NV21,
+    EXTERNAL_OES,
+}
+
 Pixel_Format :: struct {
 	format: u32,
 	palette: ^Palette,
