@@ -484,7 +484,7 @@ foreign lib {
 	@(link_name="SDL_UnlockSurface") unlock_surface :: proc(surface: ^Surface)																																		---;
 	@(link_name="SDL_UnlockTexture") unlock_texture :: proc(texture: ^Texture)																																		---;
 	@(link_name="SDL_UnregisterApp") unregister_app :: proc()																																						---;
-	@(link_name="SDL_UpdateTexture") update_texture :: proc(texture: ^Texture, rect: ^Rect, pixels: rawptr, pitch: i32)																								---;
+	@(link_name="SDL_UpdateTexture") update_texture :: proc(texture: ^Texture, rect: ^Rect, pixels: rawptr, pitch: i32) -> i32																								---;
 	@(link_name="SDL_UpdateWindowSurface") update_window_surface :: proc(window: ^Window) -> i32																																	---;
 	@(link_name="SDL_UpdateWindowSurfaceRects") update_window_surface_rects :: proc(window: ^Window, rects: ^Rect, num_rects: i32) -> i32																									---;
 	@(link_name="SDL_UpdateYUVTexture") update_yuv_texture :: proc(texture: ^Texture, rect: ^Rect, y_plane: ^u8, y_pitch: i32, u_plane: ^u8, u_pitch: i32, v_plane: ^u8, v_pitch: i32) -> i32								---;
